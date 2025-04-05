@@ -161,3 +161,154 @@ Agora você tem um **container Docker com NVIDIA CUDA** rodando em uma **VM do A
 Se precisar rodar isso em **Azure Machine Learning (AML)**, pode criar um **Compute Instance** com GPU e usar essa mesma imagem Docker.
 
 Se precisar de mais ajuda, me avise! 🚀
+
+# Azure Container Instance and Azure Kubernet Service
+Claro! Vamos abordar de forma clara e prática os dois serviços citados: **Azure Kubernetes Service (AKS)** e **Azure Container Instances (ACI)**. Ambos são soluções para rodar contêineres no Azure, mas com **níveis diferentes de complexidade, controle e escalabilidade**.
+
+---
+
+## 🔹 **1. Azure Container Instances (ACI)**
+
+### ✅ Ideal para:
+- Executar **contêineres simples e rápidos**, sem se preocupar com infraestrutura.
+- Casos de uso **temporários** ou de **baixa escala**.
+- Testes, tarefas automáticas ou pequenas APIs.
+
+### 🧱 Requisitos básicos:
+- Ter uma **imagem Docker** pronta (no Docker Hub, Azure Container Registry ou outro repositório).
+- Ter o **Azure CLI** instalado.
+
+### 🚀 Como começar:
+
+#### 1. Login no Azure:
+```bash
+az login
+```
+
+#### 2. Criar um grupo de recursos:
+```bash
+az group create --name MeuGrupo --location eastus
+```
+
+#### 3. Criar uma instância de contêiner rodando uma imagem Docker:
+```bash
+az container create \
+  --resource-group MeuGrupo \
+  --name meucontainer \
+  --image nginx \
+  --cpu 1 \
+  --memory 1 \
+  --ports 80 \
+  --dns-name-label meucontainerdns123 \
+  --location eastus
+```
+
+#### 4. Verificar se está funcionando:
+```bash
+az container show --resource-group MeuGrupo --name meucontainer --query ipAddress.fqdn
+```
+
+Abra o endereço no navegador e veja o NGINX rodando.
+
+### ⚠️ Limitações:
+- **Não suporta GPU diretamente**.
+- Não é adequado para cargas de trabalho complexas ou escaláveis.
+
+---
+
+## 🔷 **2. Azure Kubernetes Service (AKS)**
+
+### ✅ Ideal para:
+- Aplicações complexas em **escala**.
+- Uso de múltiplos contêineres, **balanceamento de carga**, **autoescalonamento**, **GPU**, etc.
+- Ambientes de produção com **resiliência e alta disponibilidade**.
+
+### 🧱 Requisitos básicos:
+- Conhecimento básico de **Kubernetes** (pods, deployments, services).
+- Azure CLI e a extensão AKS:
+```bash
+az extension add --name aks
+```
+- Docker instalado (para criar imagens locais).
+
+---
+
+### 🚀 Como começar com AKS:
+
+#### 1. Criar grupo de recursos:
+```bash
+az group create --name MeuGrupoAKS --location eastus
+```
+
+#### 2. Criar um cluster AKS:
+```bash
+az aks create \
+  --resource-group MeuGrupoAKS \
+  --name MeuClusterAKS \
+  --node-count 1 \
+  --enable-addons monitoring \
+  --generate-ssh-keys
+```
+
+#### 3. Conectar ao cluster:
+```bash
+az aks get-credentials --resource-group MeuGrupoAKS --name MeuClusterAKS
+```
+
+#### 4. Criar um app simples (por exemplo, NGINX):
+```bash
+kubectl create deployment nginx --image=nginx
+kubectl expose deployment nginx --port=80 --type=LoadBalancer
+```
+
+#### 5. Obter o IP público:
+```bash
+kubectl get services
+```
+
+Abra o IP no navegador.
+
+---
+
+### ⚙️ GPU no AKS:
+Se desejar rodar modelos com GPU (como no Ollama), crie **nós com GPU**:
+```bash
+az aks nodepool add \
+  --resource-group MeuGrupoAKS \
+  --cluster-name MeuClusterAKS \
+  --name gpupool \
+  --node-count 1 \
+  --node-vm-size Standard_NC6 \
+  --enable-node-public-ip \
+  --aks-custom-headers UseGPUDedicatedVHD=true
+```
+
+Você pode então agendar workloads para esse pool com `nodeSelector`.
+
+---
+
+## 🆚 Comparativo Rápido
+
+| Recurso | ACI | AKS |
+|--------|-----|-----|
+| Setup | Muito simples | Mais complexo |
+| Escalabilidade | Limitada | Altamente escalável |
+| Suporte a GPU | ❌ Não | ✅ Sim |
+| Ideal para | Testes, jobs simples | Produção, cargas complexas |
+| Preço | Paga por segundo de uso | Cobra por VM (mesmo ociosa) |
+| Gerenciamento | Zero infra | Você gerencia o cluster |
+
+---
+
+## 🔚 Conclusão
+
+- **Comece com o ACI** se quiser testar rapidamente seu contêiner.
+- **Use o AKS** se estiver construindo uma **infraestrutura robusta para produção**, especialmente com **GPU** para LLMs.
+
+---
+
+Se quiser, posso te fornecer:
+- Um **template YAML para AKS** com Ollama rodando.
+- Um **workflow CI/CD do GitHub Actions** para publicar imagens no Azure e deploy automático.
+
+É só pedir! 🚀
