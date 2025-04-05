@@ -1,5 +1,5 @@
 # Default Azure AI settings with Docker
-Esse projeto, tem como objetivo, desenvolver um ambiente padrao dentro de um container, docker, junto com os servicos da AI Azure para facilitar a criacao e os desenvolvimentos de IA's que irei realizar pela frente. Temos, como expectativa, em que esse projeto padrao, futuramente, sirva para outros servios de IA's de nuvem (AWS, Google GCP, etc...)
+Esse projeto, tem como objetivo, desenvolver um ambiente padrão dentro de um container, docker, junto com os servicos da AI Azure para facilitar a criacao e os desenvolvimentos de IA's que irei realizar pela frente. Temos, como expectativa, em que esse projeto padrão, futuramente, sirva para outros servios de IA's de nuvem (AWS, Google GCP, etc...)
 
 Para utilizar o **Docker** junto com o serviço de **Azure AI** e construir um **container** com **NVIDIA CUDA** instalado, você pode seguir os passos abaixo. O objetivo é criar um ambiente onde você possa verificar se a GPU disponível no serviço da Azure está funcionando corretamente.
 
