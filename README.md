@@ -1,10 +1,8 @@
-# Introducao aos usos de ferramentas de IA da Azure:
+# Introdução aos usos de ferramentas de IA da Azure:
 
 Claro! Se você está começando com **serviços de IA da Azure** e quer futuramente integrar **Docker** para maior controle e portabilidade, é uma ótima ideia entender primeiro as **ferramentas e serviços básicos de IA** da plataforma.
 
 Aqui está uma lista com as ferramentas e serviços essenciais da **Azure AI** que você deve conhecer **antes de partir para o uso de Docker**:
-
----
 
 ## 🧠 **1. Azure AI Services (Cognitive Services)**
 
