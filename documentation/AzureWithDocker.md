@@ -17,7 +17,7 @@ Antes de começar, certifique-se de que você tem:
 
 ---
 
-## **2. Azure Container Instance and Azure Kubernet Service**
+## **2. Azure Container Instance, Azure Kubernet Service e Azure CLI**
 Claro! Vamos abordar de forma clara e prática os dois serviços citados: **Azure Kubernetes Service (AKS)** e **Azure Container Instances (ACI)**. Ambos são soluções para rodar contêineres no Azure, mas com **níveis diferentes de complexidade, controle e escalabilidade**.
 
 ---
@@ -167,6 +167,60 @@ Se quiser, posso te fornecer:
 - Um **workflow CI/CD do GitHub Actions** para publicar imagens no Azure e deploy automático.
 
 É só pedir! 🚀
+
+### **2.3. Azure CLI**
+Sim, a configuração do **Azure CLI** seria extremamente útil, especialmente para gerenciar recursos da Azure, como a criação de máquinas virtuais com GPUs e a integração com Kubernetes (se você optar por usar o AKS). O Azure CLI facilita a automação e o controle direto dos serviços da Azure a partir da linha de comando.
+
+#### **2.3.1. Por que usar o Azure CLI no processo?**
+1. **Gerenciar Máquinas Virtuais (VMs)**  
+   - Criação, monitoramento e conexão com as VMs com GPU disponíveis.
+   - Por exemplo, criar uma VM com GPU:
+     ```sh
+     az vm create --resource-group MeuGrupo --name MinhaVM --image UbuntuLTS --size Standard_NC6 --generate-ssh-keys
+     ```
+
+2. **Gerenciar Clusters AKS**  
+   - Configurar e gerenciar clusters Kubernetes para rodar seus contêineres remotamente com GPU.
+   - Por exemplo, criar um cluster AKS:
+     ```sh
+     az aks create --resource-group MeuGrupo --name MeuCluster --node-count 2 --node-vm-size Standard_NC6s_v3 --generate-ssh-keys
+     ```
+
+3. **Automatizar Configurações**  
+   - Automatizar tarefas como escalabilidade e reinicialização de máquinas, sem depender do portal gráfico da Azure.
+
+4. **Integrar com Docker**  
+   - Você pode usar o Azure CLI para configurar o acesso remoto entre seu contêiner Docker local e os recursos da Azure, criando contextos ou transferindo imagens para a VM remota.
+
+---
+
+#### **2.3.2. Como instalar e configurar o Azure CLI**
+1. **Instalar o Azure CLI**:
+   - No Ubuntu/Debian:
+     ```sh
+     curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+     ```
+   - No Windows, você pode baixar o instalador [aqui](https://aka.ms/installazurecli).
+
+2. **Fazer login na sua conta da Azure**:
+   ```sh
+   az login
+   ```
+   - Isso autenticará você na Azure e permitirá acesso aos seus recursos.
+
+3. **Configurar o ambiente de trabalho**:
+   - Configure o grupo de recursos onde estarão suas VMs e clusters:
+     ```sh
+     az group create --name MeuGrupo --location eastus
+     ```
+
+4. **Testar comandos básicos**:
+   - Verifique as máquinas virtuais disponíveis:
+     ```sh
+     az vm list-sizes --location eastus --query "[?contains(name, 'NC')]" --output table
+     ```
+
+---
 
 ## **3. Criando o Dockerfile com CUDA**
 Vamos criar um Dockerfile que instala o **CUDA** e configura um ambiente básico para testar a GPU.
