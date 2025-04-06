@@ -307,3 +307,254 @@ Se você quiser saber mais sobre como configurar GPUs específicas na Azure ou c
 Com essas instruções e referências, você terá uma base sólida para começar a desenvolver sua IA e garantir que ela seja versátil e eficiente. Se precisar de ajuda em algum ponto específico, é só me chamar! 🚀
 
 ---
+
+# **Utilizacao da GPU disponivel na Azure de forma remota**
+Para utilizar a GPU da Azure, existem duas alternativas:
+
+- Criar uma VM ou um Kubernetes e enviar o repositorio que contem os arquivos docker dentro dela e executar. Ou seja, voce tera que acessar a VM de forma remota, utilizando ssh, ou de forma direta, entrando na interface da Azure com a sua conta, para, dentro dela, trazer o docker container e nela voce executar os comandos docker para criar o container e, assim, conseguir utilizar a GPU.
+
+- Criar o container localmente, na sua maquina, e, somente quando necessario, utilizar, remotamente, a GPU na Azure, utilizando os servicos da kubectl, que e um tipo de servico da Kubernetes disponivel na Azure.
+
+Basicamente, a abordagem que eu gostaria de realizar, seria em casos, de se eu quiser utilizar, somente, a GPU da Azure, sem utilizar outros servicos de AI disponveis nela.
+
+Ótima abordagem! Você pode utilizar a GPU da Azure sem depender dos serviços de IA, criando um contêiner Docker localmente e acessando os recursos de GPU na nuvem. Para verificar quais GPUs estão disponíveis na sua conta da Azure, siga estes passos:
+
+### **Como verificar GPUs disponíveis na Azure**
+1. **Acesse o portal da Azure** ([Azure Portal](https://portal.azure.com)).
+2. **Navegue até "Máquinas Virtuais"** e clique em "Criar uma nova VM".
+3. **Escolha um tamanho de VM** e filtre por opções que incluem GPUs (como as séries **NC, ND, NV**).
+4. **Verifique as especificações** da GPU disponível, como modelo (NVIDIA A100, V100, T4, etc.).
+5. **Use a CLI do Azure** para listar os tamanhos de VM com suporte a GPU:
+   ```sh
+   az vm list-sizes --location eastus
+   ```
+   Substitua `"eastus"` pela região onde deseja verificar os recursos.
+
+Para mais detalhes sobre GPUs disponíveis na Azure, você pode conferir [este guia](https://learn.microsoft.com/pt-br/azure/virtual-desktop/graphics-enable-gpu-acceleration) e [esta documentação](https://learn.microsoft.com/pt-br/azure-stack/user/gpu-vms-about?view=azs-2408).
+
+Se precisar de ajuda para configurar o acesso à GPU dentro do seu contêiner Docker, posso te orientar! 🚀
+
+## **Versao container dentro de uma VM da Azure**
+
+Ótimo! Vamos configurar seu contêiner Docker para usar a GPU da Azure. O processo envolve alguns passos importantes:
+
+---
+
+### **1. Instalar o NVIDIA Container Toolkit**
+Se o seu contêiner precisa de acesso à GPU, o **NVIDIA Container Toolkit** permite que os processos dentro do contêiner utilizem a GPU.
+
+#### **Passos para instalar no seu ambiente local**
+1. Instale o Docker (caso ainda não tenha):
+   ```sh
+   sudo apt-get update
+   sudo apt-get install -y docker.io
+   ```
+2. Instale o NVIDIA Container Toolkit:
+   ```sh
+   curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+   curl -s -L https://nvidia.github.io/nvidia-docker/ubuntu20.04/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+   sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit
+   sudo systemctl restart docker
+   ```
+3. Verifique se o Docker reconhece a GPU:
+   ```sh
+   docker run --rm --gpus all nvidia/cuda:12.0-base nvidia-smi
+   ```
+   Se o comando acima listar a GPU corretamente, significa que o suporte a GPU foi configurado corretamente.
+
+---
+
+### **2. Criar um Dockerfile para sua aplicação**
+No seu diretório de projeto, crie um arquivo chamado `Dockerfile` com o seguinte conteúdo:
+
+```dockerfile
+FROM nvidia/cuda:12.0-base
+RUN apt-get update && apt-get install -y python3 python3-pip
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . /app
+WORKDIR /app
+CMD ["python3", "seu_script.py"]
+```
+
+Isso cria um ambiente básico para rodar um aplicativo que usa a GPU.
+
+---
+
+### **3. Criar e rodar o contêiner**
+Execute os comandos abaixo para criar e rodar seu contêiner com GPU:
+
+```sh
+docker build -t minha_ia_gpu .
+docker run --rm --gpus all minha_ia_gpu
+```
+
+Isso inicia o seu contêiner Docker com acesso à GPU.
+
+---
+
+### **4. Conectar o contêiner à GPU da Azure**
+Agora, para que seu contêiner Docker local acesse a GPU da Azure, você pode:
+1. Criar uma **VM com GPU na Azure** (como uma VM da série NC ou ND).
+2. Conectar-se à VM via SSH e rodar o contêiner lá dentro:
+   ```sh
+   ssh usuario@seu_servidor.azure.com
+   docker run --gpus all minha_ia_gpu
+   ```
+3. Se precisar acessar remotamente, pode usar **Azure Kubernetes Service (AKS)**
+
+## **Versao utilizacao do GPU da Azure, de maneira remota, com o docker container montado locamente, na sua maquina**
+
+Ótima pergunta! O **Azure Kubernetes Service (AKS)** é um serviço gerenciado que permite implantar, gerenciar e escalar aplicativos em contêineres usando **Kubernetes** na nuvem da Azure. Ele facilita o acesso remoto à GPU da Azure ao permitir que você execute seus contêineres em um cluster Kubernetes hospedado na nuvem.
+
+### **Como o AKS pode ajudar no acesso remoto à GPU da Azure?**
+1. **Execução de Contêineres na Nuvem**  
+   - Em vez de rodar seu contêiner localmente, você pode implantá-lo em um cluster AKS que tenha suporte a **GPUs**.
+   - Isso permite que sua IA utilize a GPU da Azure sem depender do hardware do seu notebook.
+
+2. **Escalabilidade e Gerenciamento**  
+   - O AKS permite escalar automaticamente os recursos de GPU conforme necessário.
+   - Você pode adicionar ou remover nós de GPU no cluster sem precisar configurar manualmente cada máquina.
+
+3. **Acesso Remoto e Integração com Docker**  
+   - Você pode configurar seu contêiner local para se conectar ao AKS e executar cargas de trabalho na GPU da Azure.
+   - Isso é feito através de **kubectl**, que permite gerenciar os contêineres remotamente.
+
+### **Passos para configurar o AKS com suporte a GPU**
+1. **Criar um cluster AKS com suporte a GPU**  
+   ```sh
+   az aks create --resource-group MeuGrupo --name MeuCluster --node-count 2 --node-vm-size Standard_NC6s_v3 --generate-ssh-keys
+   ```
+   - Aqui, estamos criando um cluster com **2 nós** que possuem GPUs da série **NC**.
+
+2. **Implantar seu contêiner no AKS**  
+   - Primeiro, crie um arquivo `deployment.yaml` para definir sua aplicação:
+   ```yaml
+   apiVersion: apps/v1
+   kind: Deployment
+   metadata:
+     name: minha-ia
+   spec:
+     replicas: 1
+     selector:
+       matchLabels:
+         app: minha-ia
+     template:
+       metadata:
+         labels:
+           app: minha-ia
+       spec:
+         containers:
+         - name: minha-ia
+           image: meu-repositorio/minha-ia-gpu:latest
+           resources:
+             limits:
+               nvidia.com/gpu: 1
+   ```
+   - Esse arquivo define um **deployment** que usa **1 GPU** no AKS.
+
+3. **Aplicar a configuração no AKS**  
+   ```sh
+   kubectl apply -f deployment.yaml
+   ```
+   - Isso inicia seu contêiner no cluster AKS, utilizando a GPU da Azure.
+
+### **Referências para aprofundamento**
+- [Introdução ao AKS](https://learn.microsoft.com/ja-jp/azure/aks/what-is-aks)
+- [Guia sobre AKS e GPUs](https://www.rworks.jp/cloud/azure/azure-column/azure-entry/24475/)
+- [Documentação oficial do AKS](https://azure.microsoft.com/ja-jp/products/kubernetes-service/)
+
+Se precisar de mais detalhes ou quiser um passo a passo mais aprofundado, me avise! 🚀
+
+## **Mao na massa!**
+Entendido! Você quer criar um contêiner Docker **localmente** e, apenas quando necessário, utilizar a GPU da Azure para executar processos que demandem recursos mais intensivos. Isso envolve configurar o acesso remoto à GPU da Azure enquanto mantém o desenvolvimento e execução básica local. Aqui está uma abordagem detalhada:
+
+---
+
+### **1. Configurar o contêiner Docker localmente**
+Antes de tudo, você deve garantir que seu contêiner esteja pronto para rodar localmente. Isso inclui criar um `Dockerfile` que encapsule todas as dependências da sua aplicação. Exemplo:
+
+```dockerfile
+FROM nvidia/cuda:12.0-base
+RUN apt-get update && apt-get install -y python3 python3-pip
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . /app
+WORKDIR /app
+CMD ["python3", "seu_script.py"]
+```
+
+Este contêiner está preparado para rodar em máquinas com ou sem GPU. Localmente, ele funcionará bem para tarefas menores, sem usar a GPU ainda.
+
+---
+
+### **2. Criar uma máquina virtual com GPU na Azure**
+Quando precisar de recursos de GPU, você pode conectar seu contêiner à GPU da Azure. Para isso, configure uma máquina virtual com GPU na Azure. Exemplo:
+
+1. No **Azure Portal**, vá para **Máquinas Virtuais** e crie uma VM com suporte a GPU (séries NC ou ND).
+2. Configure um sistema operacional compatível, como Ubuntu ou Windows com suporte à NVIDIA GPU.
+3. Instale o Docker e o NVIDIA Container Toolkit na VM:
+   ```sh
+   sudo apt-get update
+   sudo apt-get install -y docker.io
+   curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+   curl -s -L https://nvidia.github.io/nvidia-docker/ubuntu20.04/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+   sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit
+   sudo systemctl restart docker
+   ```
+
+---
+
+### **3. Configurar o acesso remoto ao contêiner**
+Agora você deve configurar seu contêiner local para ser capaz de rodar na VM remota com GPU quando necessário. Isso pode ser feito usando **Docker Contexts** e **SSH**:
+
+#### **Configurar Docker Contexts**
+1. Crie um contexto Docker remoto:
+   ```sh
+   docker context create azure-gpu --docker "host=ssh://usuario@seu-servidor.azure.com"
+   ```
+   Substitua `usuario@seu-servidor.azure.com` pelo endereço SSH da sua VM com GPU.
+
+2. Mude para o contexto remoto sempre que quiser executar na GPU da Azure:
+   ```sh
+   docker context use azure-gpu
+   ```
+
+3. Execute o contêiner na VM remota:
+   ```sh
+   docker run --rm --gpus all minha_ia_gpu
+   ```
+
+#### **Usar SSH para acessar diretamente**
+Caso prefira usar SSH direto, você pode copiar seu contêiner local para a VM com GPU:
+1. Crie o contêiner local:
+   ```sh
+   docker save minha_ia_gpu | gzip > minha_ia_gpu.tar.gz
+   ```
+2. Transfira o contêiner para a VM com GPU:
+   ```sh
+   scp minha_ia_gpu.tar.gz usuario@seu-servidor.azure.com:~
+   ```
+3. Importe e execute o contêiner na VM:
+   ```sh
+   ssh usuario@seu-servidor.azure.com
+   gunzip minha_ia_gpu.tar.gz
+   docker load < minha_ia_gpu.tar
+   docker run --rm --gpus all minha_ia_gpu
+   ```
+
+---
+
+### **4. Alternar entre local e remoto**
+Sempre que quiser alternar entre o ambiente local e o remoto:
+- Use o contexto local do Docker para tarefas que não dependem de GPU.
+- Altere para o contexto remoto quando precisar executar processos que demandem GPU na Azure.
+
+---
+
+### **Referências úteis**
+- [Docker Contexts](https://docs.docker.com/engine/context/working-with-contexts/)
+- [Configurar Máquinas Virtuais com GPU na Azure](https://learn.microsoft.com/pt-br/azure/virtual-machines/n-series)
+- [Gerenciamento de GPUs com NVIDIA Docker](https://github.com/NVIDIA/nvidia-docker)
+
+Com essa abordagem, você mantém a flexibilidade de desenvolver localmente e acessar GPUs da Azure quando necessário, garantindo o melhor dos dois mundos! Se precisar de mais detalhes, é só me avisar! 🚀
