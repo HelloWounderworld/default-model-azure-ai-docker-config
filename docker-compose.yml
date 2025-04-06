@@ -3,7 +3,15 @@ version: '3.9'
 services:
   azure-ia-service:
     build: .
+    image: Dockerfile
     container_name: azure-ia-service
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            count: all
+            capabilities: [gpu]
     volumes:
       - ./:/azure-service-models
     tty: true
