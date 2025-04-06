@@ -307,3 +307,5 @@ Se você quiser saber mais sobre como configurar GPUs específicas na Azure ou c
 ---
 
 Com essas instruções e referências, você terá uma base sólida para começar a desenvolver sua IA e garantir que ela seja versátil e eficiente. Se precisar de ajuda em algum ponto específico, é só me chamar! 🚀
+
+---
