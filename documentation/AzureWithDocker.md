@@ -215,7 +215,7 @@ Sim, a configuração do **Azure CLI** seria extremamente útil, especialmente p
      ```
 
 4. **Testar comandos básicos**:
-   - Verifique as máquinas virtuais disponíveis:
+   - Verifique as máquinas virtuais disponíveis: mudar o "eastus" com a area em que voce esta presente
      ```sh
      az vm list-sizes --location eastus --query "[?contains(name, 'NC')]" --output table
      ```
