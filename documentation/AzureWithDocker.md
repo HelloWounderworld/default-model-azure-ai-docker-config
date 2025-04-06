@@ -222,6 +222,12 @@ Sim, a configuração do **Azure CLI** seria extremamente útil, especialmente p
 
 ---
 
+#### **2.3.3. Referências e mais informações**
+- [Documentação do Azure CLI](https://learn.microsoft.com/pt-br/cli/azure/)
+- [Guia de configuração do CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
+
+Se precisar de suporte para instalar ou usar o Azure CLI, ou para combinar os comandos com Docker, é só pedir! 🚀
+
 ## **3. Criando o Dockerfile com CUDA**
 Vamos criar um Dockerfile que instala o **CUDA** e configura um ambiente básico para testar a GPU.
 
@@ -500,7 +506,14 @@ Sempre que quiser alternar entre o ambiente local e o remoto:
 
 ---
 
-## **Conclusão**
+### **6.3. Referências úteis**
+- [Docker Contexts](https://docs.docker.com/engine/context/working-with-contexts/)
+- [Configurar Máquinas Virtuais com GPU na Azure](https://learn.microsoft.com/pt-br/azure/virtual-machines/n-series)
+- [Gerenciamento de GPUs com NVIDIA Docker](https://github.com/NVIDIA/nvidia-docker)
+
+Com essa abordagem, você mantém a flexibilidade de desenvolver localmente e acessar GPUs da Azure quando necessário, garantindo o melhor dos dois mundos! Se precisar de mais detalhes, é só me avisar! 🚀
+
+### **6.4. Conclusão**
 Agora você tem um **container Docker com NVIDIA CUDA** rodando em uma **VM do Azure com GPU**. Isso pode ser expandido para rodar modelos de IA usando **PyTorch, TensorFlow, etc.** diretamente na GPU da Azure.
 
 Se precisar rodar isso em **Azure Machine Learning (AML)**, pode criar um **Compute Instance** com GPU e usar essa mesma imagem Docker.
