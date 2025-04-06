@@ -130,6 +130,11 @@ else:
 print(device_lib.list_local_devices())
 ```
 
+- O arquivo requirements.txt
+```sh
+torch
+tensrflow
+```
 ---
 
 ## **4. Construindo e rodando o container**
