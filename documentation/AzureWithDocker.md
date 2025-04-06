@@ -1,4 +1,4 @@
-# **Configuracoes do Container e a utilizacao com a Azure**
+# 🐋 vs ☁️ **Configuracoes do Container e a utilizacao com a Azure**
 Esse projeto, tem como objetivo, desenvolver um ambiente padrão dentro de um container, docker, junto com os servicos da AI Azure para facilitar a criacao e os desenvolvimentos de IA's que irei realizar pela frente. Temos, como expectativa, em que esse projeto padrão, futuramente, sirva para outros servios de IA's de nuvem (AWS, Google GCP, etc...)
 
 Para utilizar o **Docker** junto com o serviço de **Azure AI** e construir um **container** com **NVIDIA CUDA** instalado, você pode seguir os passos abaixo. O objetivo é criar um ambiente onde você possa verificar se a GPU disponível no serviço da Azure está funcionando corretamente.
@@ -513,7 +513,7 @@ Sempre que quiser alternar entre o ambiente local e o remoto:
 
 Com essa abordagem, você mantém a flexibilidade de desenvolver localmente e acessar GPUs da Azure quando necessário, garantindo o melhor dos dois mundos! Se precisar de mais detalhes, é só me avisar! 🚀
 
-### **6.4. Conclusão**
+### **6.4.Conclusão**
 Agora você tem um **container Docker com NVIDIA CUDA** rodando em uma **VM do Azure com GPU**. Isso pode ser expandido para rodar modelos de IA usando **PyTorch, TensorFlow, etc.** diretamente na GPU da Azure.
 
 Se precisar rodar isso em **Azure Machine Learning (AML)**, pode criar um **Compute Instance** com GPU e usar essa mesma imagem Docker.
