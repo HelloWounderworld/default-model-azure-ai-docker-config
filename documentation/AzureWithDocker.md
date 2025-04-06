@@ -17,7 +17,158 @@ Antes de começar, certifique-se de que você tem:
 
 ---
 
-## **2. Criando o Dockerfile com CUDA**
+# Azure Container Instance and Azure Kubernet Service
+Claro! Vamos abordar de forma clara e prática os dois serviços citados: **Azure Kubernetes Service (AKS)** e **Azure Container Instances (ACI)**. Ambos são soluções para rodar contêineres no Azure, mas com **níveis diferentes de complexidade, controle e escalabilidade**.
+
+---
+
+## 🔹 **2. Azure Container Instances (ACI)**
+
+### ✅ Ideal para:
+- Executar **contêineres simples e rápidos**, sem se preocupar com infraestrutura.
+- Casos de uso **temporários** ou de **baixa escala**.
+- Testes, tarefas automáticas ou pequenas APIs.
+
+### 🧱 Requisitos básicos:
+- Ter uma **imagem Docker** pronta (no Docker Hub, Azure Container Registry ou outro repositório).
+- Ter o **Azure CLI** instalado.
+
+### 🚀 Como começar:
+
+#### 1. Login no Azure:
+```bash
+az login
+```
+
+#### 2. Criar um grupo de recursos:
+```bash
+az group create --name MeuGrupo --location eastus
+```
+
+#### 3. Criar uma instância de contêiner rodando uma imagem Docker:
+```bash
+az container create \
+  --resource-group MeuGrupo \
+  --name meucontainer \
+  --image nginx \
+  --cpu 1 \
+  --memory 1 \
+  --ports 80 \
+  --dns-name-label meucontainerdns123 \
+  --location eastus
+```
+
+#### 4. Verificar se está funcionando:
+```bash
+az container show --resource-group MeuGrupo --name meucontainer --query ipAddress.fqdn
+```
+
+Abra o endereço no navegador e veja o NGINX rodando.
+
+### ⚠️ Limitações:
+- **Não suporta GPU diretamente**.
+- Não é adequado para cargas de trabalho complexas ou escaláveis.
+
+---
+
+## 🔷 **3. Azure Kubernetes Service (AKS)**
+
+### ✅ Ideal para:
+- Aplicações complexas em **escala**.
+- Uso de múltiplos contêineres, **balanceamento de carga**, **autoescalonamento**, **GPU**, etc.
+- Ambientes de produção com **resiliência e alta disponibilidade**.
+
+### 🧱 Requisitos básicos:
+- Conhecimento básico de **Kubernetes** (pods, deployments, services).
+- Azure CLI e a extensão AKS:
+```bash
+az extension add --name aks
+```
+- Docker instalado (para criar imagens locais).
+
+---
+
+### 🚀 Como começar com AKS:
+
+#### 1. Criar grupo de recursos:
+```bash
+az group create --name MeuGrupoAKS --location eastus
+```
+
+#### 2. Criar um cluster AKS:
+```bash
+az aks create \
+  --resource-group MeuGrupoAKS \
+  --name MeuClusterAKS \
+  --node-count 1 \
+  --enable-addons monitoring \
+  --generate-ssh-keys
+```
+
+#### 3. Conectar ao cluster:
+```bash
+az aks get-credentials --resource-group MeuGrupoAKS --name MeuClusterAKS
+```
+
+#### 4. Criar um app simples (por exemplo, NGINX):
+```bash
+kubectl create deployment nginx --image=nginx
+kubectl expose deployment nginx --port=80 --type=LoadBalancer
+```
+
+#### 5. Obter o IP público:
+```bash
+kubectl get services
+```
+
+Abra o IP no navegador.
+
+---
+
+### ⚙️ GPU no AKS:
+Se desejar rodar modelos com GPU (como no Ollama), crie **nós com GPU**:
+```bash
+az aks nodepool add \
+  --resource-group MeuGrupoAKS \
+  --cluster-name MeuClusterAKS \
+  --name gpupool \
+  --node-count 1 \
+  --node-vm-size Standard_NC6 \
+  --enable-node-public-ip \
+  --aks-custom-headers UseGPUDedicatedVHD=true
+```
+
+Você pode então agendar workloads para esse pool com `nodeSelector`.
+
+---
+
+### 🆚 Comparativo Rápido
+
+| Recurso | ACI | AKS |
+|--------|-----|-----|
+| Setup | Muito simples | Mais complexo |
+| Escalabilidade | Limitada | Altamente escalável |
+| Suporte a GPU | ❌ Não | ✅ Sim |
+| Ideal para | Testes, jobs simples | Produção, cargas complexas |
+| Preço | Paga por segundo de uso | Cobra por VM (mesmo ociosa) |
+| Gerenciamento | Zero infra | Você gerencia o cluster |
+
+---
+
+### 🔚 Conclusão
+
+- **Comece com o ACI** se quiser testar rapidamente seu contêiner.
+- **Use o AKS** se estiver construindo uma **infraestrutura robusta para produção**, especialmente com **GPU** para LLMs.
+
+---
+
+Se quiser, posso te fornecer:
+- Um **template YAML para AKS** com Ollama rodando.
+- Um **workflow CI/CD do GitHub Actions** para publicar imagens no Azure e deploy automático.
+
+É só pedir! 🚀
+
+## **4. Criando o Dockerfile com CUDA**
 Vamos criar um Dockerfile que instala o **CUDA** e configura um ambiente básico para testar a GPU.
 
 Crie um arquivo chamado **`Dockerfile`**:
@@ -95,7 +246,7 @@ CMD ["python", "test_gpu_pytorch.py"]
 
 ---
 
-## **3. Criando o script Python para testar a GPU**
+## **5. Criando o script Python para testar a GPU**
 Crie um arquivo chamado **`test_gpu.py`** no mesmo diretório do Dockerfile:
 
 ```python
@@ -112,11 +263,11 @@ else:
 
 ---
 
-## **4. Construindo e rodando o container**
+## **6. Construindo e rodando o container**
 Agora, vamos construir e executar o container **Docker**.
 
-### **4.1. Utilizando Somente Imagem (Dockerfile)**
-#### **4.1.1. Construindo a imagem Docker**
+### **6.1. Utilizando Somente Imagem (Dockerfile)**
+#### **6.1.1. Construindo a imagem Docker**
 No terminal, execute:
 
 ```sh
@@ -125,7 +276,7 @@ docker build -t my_cuda_container .
 
 Isso criará uma imagem chamada **my_cuda_container** com CUDA instalado.
 
-#### **4.1.2. Executando o container com suporte à GPU**
+#### **6.1.2. Executando o container com suporte à GPU**
 Se estiver em uma máquina com suporte à GPU e **NVIDIA Container Toolkit** instalado, execute:
 
 ```sh
@@ -140,14 +291,15 @@ Nome da GPU: NVIDIA A100-SXM4-40GB
 Quantidade de GPUs disponíveis: 1
 Memória total da GPU: 40.00 GB
 ```
-### **4.2. Utilizando docker-compose.yml**
+### **6.2. Utilizando docker-compose.yml**
 
 ---
 
-## **5. Subindo o container no Azure**
-Se quiser rodar esse container em uma **VM do Azure com GPU**, siga os passos abaixo.
+## **7. Subindo o container no Azure**
 
-### **5.1. Criando uma VM com GPU no Azure**
+### **7.1. Se quiser rodar esse container em uma \*\*VM do Azure com GPU\*\*, siga os passos abaixo.**
+
+#### **7.1.1. Criando uma VM com GPU no Azure**
 1. Acesse o [Portal do Azure](https://portal.azure.com/).
 2. Vá para **Máquinas Virtuais** ➝ **Criar VM**.
 3. Escolha um **tamanho compatível com GPU** (ex: `Standard_NC6`, `Standard_ND6s`, etc.).
@@ -156,14 +308,14 @@ Se quiser rodar esse container em uma **VM do Azure com GPU**, siga os passos ab
 6. Habilite a opção **"Suporte a GPU"**.
 7. Finalize a configuração e inicie a VM.
 
-### **5.2. Conectando-se à VM**
+#### **7.1.2. Conectando-se à VM**
 Após a VM estar criada, conecte-se via SSH:
 
 ```sh
 ssh azure-user@<IP_DA_VM>
 ```
 
-### **5.3. Instalando Docker e NVIDIA Container Toolkit**
+#### **7.1.3. Instalando Docker e NVIDIA Container Toolkit**
 Na VM do Azure, execute:
 
 ```sh
@@ -187,7 +339,7 @@ sudo apt update && sudo apt install -y nvidia-container-toolkit
 sudo systemctl restart docker
 ```
 
-### **5.4. Transferindo e rodando o container na Azure VM**
+#### **7.1.4. Transferindo e rodando o container na Azure VM**
 Agora, copie os arquivos para a VM:
 
 ```sh
@@ -206,231 +358,97 @@ Se tudo estiver correto, você verá a saída confirmando que a GPU está dispon
 
 ---
 
+### **7.2. Se quiser rodar esse container \*\*na sua maquina local e acessar a GPU da Azure, remotamente, somente, quando necessario\*\*, siga os passos abaixo.**
+Ótima pergunta! O **Azure Kubernetes Service (AKS)** é um serviço gerenciado que permite implantar, gerenciar e escalar aplicativos em contêineres usando **Kubernetes** na nuvem da Azure. Ele facilita o acesso remoto à GPU da Azure ao permitir que você execute seus contêineres em um cluster Kubernetes hospedado na nuvem.
+
+Entendido! Você quer criar um contêiner Docker **localmente** e, apenas quando necessário, utilizar a GPU da Azure para executar processos que demandem recursos mais intensivos. Isso envolve configurar o acesso remoto à GPU da Azure enquanto mantém o desenvolvimento e execução básica local. Aqui está uma abordagem detalhada:
+
+---
+
+#### **7.2.1. Configurar o contêiner Docker localmente**
+Antes de tudo, você deve garantir que seu contêiner esteja pronto para rodar localmente. Isso inclui criar um `Dockerfile` que encapsule todas as dependências da sua aplicação. Exemplo:
+
+```dockerfile
+FROM nvidia/cuda:12.0-base
+RUN apt-get update && apt-get install -y python3 python3-pip
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . /app
+WORKDIR /app
+CMD ["python3", "seu_script.py"]
+```
+
+Este contêiner está preparado para rodar em máquinas com ou sem GPU. Localmente, ele funcionará bem para tarefas menores, sem usar a GPU ainda.
+
+---
+
+#### **7.2.2. Criar uma máquina virtual com GPU na Azure**
+Quando precisar de recursos de GPU, você pode conectar seu contêiner à GPU da Azure. Para isso, configure uma máquina virtual com GPU na Azure. Exemplo:
+
+1. No **Azure Portal**, vá para **Máquinas Virtuais** e crie uma VM com suporte a GPU (séries NC ou ND).
+2. Configure um sistema operacional compatível, como Ubuntu ou Windows com suporte à NVIDIA GPU.
+3. Instale o Docker e o NVIDIA Container Toolkit na VM:
+   ```sh
+   sudo apt-get update
+   sudo apt-get install -y docker.io
+   curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+   curl -s -L https://nvidia.github.io/nvidia-docker/ubuntu20.04/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+   sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit
+   sudo systemctl restart docker
+   ```
+
+---
+
+#### **7.2.3. Configurar o acesso remoto ao contêiner**
+Agora você deve configurar seu contêiner local para ser capaz de rodar na VM remota com GPU quando necessário. Isso pode ser feito usando **Docker Contexts** e **SSH**:
+
+##### **Configurar Docker Contexts**
+1. Crie um contexto Docker remoto:
+   ```sh
+   docker context create azure-gpu --docker "host=ssh://usuario@seu-servidor.azure.com"
+   ```
+   Substitua `usuario@seu-servidor.azure.com` pelo endereço SSH da sua VM com GPU.
+
+2. Mude para o contexto remoto sempre que quiser executar na GPU da Azure:
+   ```sh
+   docker context use azure-gpu
+   ```
+
+3. Execute o contêiner na VM remota:
+   ```sh
+   docker run --rm --gpus all minha_ia_gpu
+   ```
+
+##### **Usar SSH para acessar diretamente**
+Caso prefira usar SSH direto, você pode copiar seu contêiner local para a VM com GPU:
+1. Crie o contêiner local:
+   ```sh
+   docker save minha_ia_gpu | gzip > minha_ia_gpu.tar.gz
+   ```
+2. Transfira o contêiner para a VM com GPU:
+   ```sh
+   scp minha_ia_gpu.tar.gz usuario@seu-servidor.azure.com:~
+   ```
+3. Importe e execute o contêiner na VM:
+   ```sh
+   ssh usuario@seu-servidor.azure.com
+   gunzip minha_ia_gpu.tar.gz
+   docker load < minha_ia_gpu.tar
+   docker run --rm --gpus all minha_ia_gpu
+   ```
+
+---
+
+#### **7.2.4. Alternar entre local e remoto**
+Sempre que quiser alternar entre o ambiente local e o remoto:
+- Use o contexto local do Docker para tarefas que não dependem de GPU.
+- Altere para o contexto remoto quando precisar executar processos que demandem GPU na Azure.
+
+---
+
 ## **Conclusão**
 Agora você tem um **container Docker com NVIDIA CUDA** rodando em uma **VM do Azure com GPU**. Isso pode ser expandido para rodar modelos de IA usando **PyTorch, TensorFlow, etc.** diretamente na GPU da Azure.
 
 Se precisar rodar isso em **Azure Machine Learning (AML)**, pode criar um **Compute Instance** com GPU e usar essa mesma imagem Docker.
 
 Se precisar de mais ajuda, me avise! 🚀
-
-# Ja nao existe alguma IA com essa natureza?
-Sim, **já existem IAs que cumprem parcialmente o trabalho de um advogado**, especialmente em **tarefas repetitivas, documentais e analíticas**. No entanto, **a atuação completa de um advogado ainda não pode ser totalmente substituída** por IA devido a fatores como interpretação jurídica complexa, ética, empatia humana e decisões estratégicas.
-
----
-
-## ⚖️ **Áreas em que a IA já atua no Direito**
-
-### ✅ **Automação de Tarefas Jurídicas Repetitivas**
-- **Redação de contratos básicos**
-- **Revisão e análise de documentos**
-- **Extração de cláusulas** em grandes volumes contratuais
-- **Pesquisa jurídica automatizada**
-- **Classificação de documentos legais**
-
-### ✅ **Análise de Jurisprudência e Precedentes**
-- IAs conseguem analisar milhares de decisões judiciais para encontrar **padrões, argumentos e resultados esperados**.
-
-### ✅ **Chatbots Jurídicos**
-- Atendem clientes, esclarecem dúvidas legais simples e oferecem **orientação pré-jurídica**.
-- Ex: DoNotPay (EUA), Jusbot (Brasil).
-
-### ✅ **Predição de Decisões Judiciais**
-- Algumas plataformas utilizam IA para prever **probabilidade de êxito em ações judiciais** com base em dados históricos.
-
----
-
-## 🤖 **Exemplos Reais de IAs Jurídicas**
-
-| Nome | Função | Nível de automação |
-|------|--------|--------------------|
-| **DoNotPay** | Chatbot jurídico que ajuda com multas, cancelamentos, pequenos processos | 🟡 Parcial |
-| **ROSS Intelligence** (encerrado em 2021) | IA para pesquisa jurídica com base em IBM Watson | 🟡 Parcial |
-| **LawGeex** | Revisão automática de contratos com precisão comparável à de advogados humanos | 🟢 Alta |
-| **Luminance** | Análise e auditoria de documentos jurídicos com IA | 🟢 Alta |
-| **Jusbot** (Brasil) | Chatbot de orientação jurídica inicial | 🟡 Parcial |
-| **ChatGPT/OpenAI + Plugins Jurídicos** | Pode gerar petições, revisar contratos, responder dúvidas legais simples | 🟡 Parcial |
-
----
-
-## 🚫 **Limitações da IA no Direito**
-
-- ❌ **Não substitui o julgamento estratégico e ético do advogado**
-- ❌ **Não representa clientes judicialmente**
-- ❌ **Não pode oferecer garantias legais** (problemas de responsabilidade e regulação)
-- ❌ **Dificuldade em interpretar nuances legais e contexto social**
-
----
-
-## ⚖️ **IA como Assistente, não Substituto**
-
-Hoje, a IA é vista como uma **ferramenta de aumento de produtividade** no Direito:
-
-> 🧠 *"Advogados que usam IA substituirão advogados que não usam IA."*  
-> — Parafraseando uma visão moderna da transformação digital no setor jurídico
-
----
-
-## 🛠️ **Quer testar?**
-
-Você pode experimentar:
-- **ChatGPT com Plugins Jurídicos** (usando GPT-4)
-- **Ferramentas como LawGeex, Luminance** (trials disponíveis)
-- **Criar seu próprio assistente jurídico com Azure OpenAI + Prompt Engineering**
-
-Se quiser, posso te ajudar a:
-- Criar um **chatbot jurídico com LLM**
-- Escrever um **modelo de contrato com IA**
-- Montar um **projeto de IA para automação legal**
-
-Deseja seguir por alguma dessas opções?
-
-# Azure Container Instance and Azure Kubernet Service
-Claro! Vamos abordar de forma clara e prática os dois serviços citados: **Azure Kubernetes Service (AKS)** e **Azure Container Instances (ACI)**. Ambos são soluções para rodar contêineres no Azure, mas com **níveis diferentes de complexidade, controle e escalabilidade**.
-
----
-
-## 🔹 **1. Azure Container Instances (ACI)**
-
-### ✅ Ideal para:
-- Executar **contêineres simples e rápidos**, sem se preocupar com infraestrutura.
-- Casos de uso **temporários** ou de **baixa escala**.
-- Testes, tarefas automáticas ou pequenas APIs.
-
-### 🧱 Requisitos básicos:
-- Ter uma **imagem Docker** pronta (no Docker Hub, Azure Container Registry ou outro repositório).
-- Ter o **Azure CLI** instalado.
-
-### 🚀 Como começar:
-
-#### 1. Login no Azure:
-```bash
-az login
-```
-
-#### 2. Criar um grupo de recursos:
-```bash
-az group create --name MeuGrupo --location eastus
-```
-
-#### 3. Criar uma instância de contêiner rodando uma imagem Docker:
-```bash
-az container create \
-  --resource-group MeuGrupo \
-  --name meucontainer \
-  --image nginx \
-  --cpu 1 \
-  --memory 1 \
-  --ports 80 \
-  --dns-name-label meucontainerdns123 \
-  --location eastus
-```
-
-#### 4. Verificar se está funcionando:
-```bash
-az container show --resource-group MeuGrupo --name meucontainer --query ipAddress.fqdn
-```
-
-Abra o endereço no navegador e veja o NGINX rodando.
-
-### ⚠️ Limitações:
-- **Não suporta GPU diretamente**.
-- Não é adequado para cargas de trabalho complexas ou escaláveis.
-
----
-
-## 🔷 **2. Azure Kubernetes Service (AKS)**
-
-### ✅ Ideal para:
-- Aplicações complexas em **escala**.
-- Uso de múltiplos contêineres, **balanceamento de carga**, **autoescalonamento**, **GPU**, etc.
-- Ambientes de produção com **resiliência e alta disponibilidade**.
-
-### 🧱 Requisitos básicos:
-- Conhecimento básico de **Kubernetes** (pods, deployments, services).
-- Azure CLI e a extensão AKS:
-```bash
-az extension add --name aks
-```
-- Docker instalado (para criar imagens locais).
-
----
-
-### 🚀 Como começar com AKS:
-
-#### 1. Criar grupo de recursos:
-```bash
-az group create --name MeuGrupoAKS --location eastus
-```
-
-#### 2. Criar um cluster AKS:
-```bash
-az aks create \
-  --resource-group MeuGrupoAKS \
-  --name MeuClusterAKS \
-  --node-count 1 \
-  --enable-addons monitoring \
-  --generate-ssh-keys
-```
-
-#### 3. Conectar ao cluster:
-```bash
-az aks get-credentials --resource-group MeuGrupoAKS --name MeuClusterAKS
-```
-
-#### 4. Criar um app simples (por exemplo, NGINX):
-```bash
-kubectl create deployment nginx --image=nginx
-kubectl expose deployment nginx --port=80 --type=LoadBalancer
-```
-
-#### 5. Obter o IP público:
-```bash
-kubectl get services
-```
-
-Abra o IP no navegador.
-
----
-
-### ⚙️ GPU no AKS:
-Se desejar rodar modelos com GPU (como no Ollama), crie **nós com GPU**:
-```bash
-az aks nodepool add \
-  --resource-group MeuGrupoAKS \
-  --cluster-name MeuClusterAKS \
-  --name gpupool \
-  --node-count 1 \
-  --node-vm-size Standard_NC6 \
-  --enable-node-public-ip \
-  --aks-custom-headers UseGPUDedicatedVHD=true
-```
-
-Você pode então agendar workloads para esse pool com `nodeSelector`.
-
----
-
-## 🆚 Comparativo Rápido
-
-| Recurso | ACI | AKS |
-|--------|-----|-----|
-| Setup | Muito simples | Mais complexo |
-| Escalabilidade | Limitada | Altamente escalável |
-| Suporte a GPU | ❌ Não | ✅ Sim |
-| Ideal para | Testes, jobs simples | Produção, cargas complexas |
-| Preço | Paga por segundo de uso | Cobra por VM (mesmo ociosa) |
-| Gerenciamento | Zero infra | Você gerencia o cluster |
-
----
-
-## 🔚 Conclusão
-
-- **Comece com o ACI** se quiser testar rapidamente seu contêiner.
-- **Use o AKS** se estiver construindo uma **infraestrutura robusta para produção**, especialmente com **GPU** para LLMs.
-
----
-
-Se quiser, posso te fornecer:
-- Um **template YAML para AKS** com Ollama rodando.
-- Um **workflow CI/CD do GitHub Actions** para publicar imagens no Azure e deploy automático.
-
-É só pedir! 🚀
