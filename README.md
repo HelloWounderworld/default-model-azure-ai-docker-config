@@ -1,4 +1,4 @@
-# **Introdução do uso de Docker Container com GPU em nuvem oferecido pela Azure**
+# 🐋 & ☁️  **Introdução do uso de Docker Container com GPU em nuvem oferecido pela Azure**
 
 ## **Objetivo**
 Eu tenho um objetivo de criar uma IA. Porem, o unico problema para criar essa IA seria a utilizacao da GPU. O meu notebook gamer nao tem uma GPU tao potente. Logo, imagino que a Azure tenha. Ou seja, eu acho que so iria querer utilizar a GPU da Azure mesmo, pois essa mesma IA que eu criar, nao queria que ela ficasse dependente somente dos recursos da Azure, mas, sim, que ela tenha mais versatilidade em ser implementada em diversos ambientes.
