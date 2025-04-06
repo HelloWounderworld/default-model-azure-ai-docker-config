@@ -295,7 +295,7 @@ Memória total da GPU: 40.00 GB
 
 ---
 
-## **6. Subindo o container no Azure**
+## **6. Utilizando Container e Azure**
 
 ### **6.1. Se quiser rodar esse container em uma \*\*VM do Azure com GPU\*\*, siga os passos abaixo.**
 
