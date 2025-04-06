@@ -1,19 +1,76 @@
-# Usa a imagem oficial da NVIDIA com CUDA e cuDNN
-FROM nvidia/cuda:12.2.2-devel-ubuntu22.04
+FROM nvidia/cuda:12.6.2-devel-ubuntu22.04
 
-# Instala pacotes necessários
-RUN apt-get update && apt-get install -y \
-    python3 python3-pip \
-    && rm -rf /var/lib/apt/lists/*
+SHELL ["/bin/bash", "-c"]
 
-# Define o ambiente correto para CUDA
-ENV PATH="/usr/local/cuda/bin:${PATH}"
-ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
+ARG DEBIAN_FRONTEND=noninteractive
+ENV GIT_SSL_NO_VERIFY=true
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONUTF8=1
+ENV PIP_NO_CACHE_DIR=off
 
-# Instala pacotes Python para testar GPU
-RUN pip3 install --upgrade pip && \
-    pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+COPY sources.list /etc/apt/sources.list
 
-# Copia e executa um script de teste da GPU
-COPY test_gpu.py /test_gpu.py
-CMD ["python3", "/test_gpu.py"]
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && apt-get install --assume-yes --no-install-recommends \
+    ca-certificates \
+    build-essential \
+    git \
+    nano \
+    curl \
+    wget \
+    gnupg2 \
+    lsb-release \
+    libssl-dev \
+    zlib1g-dev \
+    libbz2-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    llvm \
+    libncurses5-dev \
+    libncursesw5-dev \
+    xz-utils \
+    tk-dev \
+    libxml2-dev \
+    libxmlsec1-dev \
+    libffi-dev \
+    liblzma-dev \
+    python3-openssl \
+    libopenblas-base \
+    libopenblas-dev \
+    logrotate \
+    less \
+    sudo \
+    apt-utils \
+    dpkg
+
+WORKDIR /opt
+
+ENV PYENV_ROOT /opt/.pyenv
+ENV PATH ${PYENV_ROOT}/bin:${PYENV_ROOT}/shims:${PATH}
+ARG PYTHON_VERSION=3.10.15
+RUN git clone https://github.com/pyenv/pyenv.git ${PYENV_ROOT} \
+    && echo 'export PATH="${PYENV_ROOT}/bin:${PYENV_ROOT}/shims:${PATH}"' >> ~/.bashrc \
+    && echo 'eval "$(pyenv init -)"' >> ~/.bashrc \
+    && eval "$(pyenv init -)" \
+    && source ~/.bashrc \
+    && CFLAGS=-I/usr/include LDFLAGS=-L/usr/lib pyenv install -v ${PYTHON_VERSION} \
+    && pyenv global ${PYTHON_VERSION} \
+    && pyenv rehash \
+    && python --version \
+    && pip install --upgrade pip
+
+WORKDIR /azure-service-models
+
+COPY . .
+
+RUN apt-get update \
+    && apt-get -y upgrade \
+    && nvcc --version \
+    && pip install -U -r requirements.txt \
+    && pip freeze > requirements.txt
+
+EXPOSE 8000
+
+CMD nvidia-smi
