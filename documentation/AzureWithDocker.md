@@ -175,7 +175,23 @@ Quantidade de GPUs disponíveis: 1
 Memória total da GPU: 40.00 GB
 ```
 ### **4.2. Utilizando docker-compose.yml**
+No terminal, execute:
 
+```sh
+docker compose up -d --build
+```
+
+Depois disso, verifique o container esta de pe
+
+```sh
+docker compose ps
+```
+
+Agora, verifique se o processo foi bem sucedido analisando o log
+
+```sh
+docker compose logs
+```
 ---
 
 ## **5. Utilizando Container e Azure**
