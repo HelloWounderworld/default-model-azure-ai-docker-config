@@ -5,7 +5,7 @@ Para utilizar o **Docker** junto com o serviço de **Azure AI** e construir um *
 
 ---
 
-## **1. Pré-requisitos**
+## **1. Pré-requisitos ([Caso nao estiver sendo satisfeito, basta clicar aqui](requisites.md))**
 Antes de começar, certifique-se de que você tem:
 
 1. **Conta no Azure** com acesso a um **VM com GPU** ou **Azure Machine Learning (AML)**.
