@@ -257,7 +257,7 @@ Se tudo estiver correto, você verá a saída confirmando que a GPU está dispon
 
 ---
 
-### **5.2. Se quiser rodar esse container \*\*na sua maquina local e acessar a GPU da Azure, remotamente, somente, quando necessario\*\*, siga os passos abaixo.**
+### **5.2. Se quiser rodar esse container na sua maquina local e acessar a GPU da Azure, remotamente, somente, quando necessario, siga os passos abaixo.**
 Ótima pergunta! O **Azure Kubernetes Service (AKS)** é um serviço gerenciado que permite implantar, gerenciar e escalar aplicativos em contêineres usando **Kubernetes** na nuvem da Azure. Ele facilita o acesso remoto à GPU da Azure ao permitir que você execute seus contêineres em um cluster Kubernetes hospedado na nuvem.
 
 Entendido! Você quer criar um contêiner Docker **localmente** e, apenas quando necessário, utilizar a GPU da Azure para executar processos que demandem recursos mais intensivos. Isso envolve configurar o acesso remoto à GPU da Azure enquanto mantém o desenvolvimento e execução básica local. Aqui está uma abordagem detalhada:
@@ -265,38 +265,16 @@ Entendido! Você quer criar um contêiner Docker **localmente** e, apenas quando
 ---
 
 #### **5.2.1. Configurar o contêiner Docker localmente**
-Antes de tudo, você deve garantir que seu contêiner esteja pronto para rodar localmente. Isso inclui criar um `Dockerfile` que encapsule todas as dependências da sua aplicação. Exemplo:
-
-```dockerfile
-FROM nvidia/cuda:12.0-base
-RUN apt-get update && apt-get install -y python3 python3-pip
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY . /app
-WORKDIR /app
-CMD ["python3", "seu_script.py"]
-```
+Antes de tudo, você deve garantir que seu contêiner esteja pronto para rodar localmente. Isso inclui criar um `Dockerfile` que encapsule todas as dependências da sua aplicação.
 
 Este contêiner está preparado para rodar em máquinas com ou sem GPU. Localmente, ele funcionará bem para tarefas menores, sem usar a GPU ainda.
-
----
 
 #### **5.2.2. Criar uma máquina virtual com GPU na Azure**
 Quando precisar de recursos de GPU, você pode conectar seu contêiner à GPU da Azure. Para isso, configure uma máquina virtual com GPU na Azure. Exemplo:
 
 1. No **Azure Portal**, vá para **Máquinas Virtuais** e crie uma VM com suporte a GPU (séries NC ou ND).
 2. Configure um sistema operacional compatível, como Ubuntu ou Windows com suporte à NVIDIA GPU.
-3. Instale o Docker e o NVIDIA Container Toolkit na VM:
-   ```sh
-   sudo apt-get update
-   sudo apt-get install -y docker.io
-   curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
-   curl -s -L https://nvidia.github.io/nvidia-docker/ubuntu20.04/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
-   sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit
-   sudo systemctl restart docker
-   ```
-
----
+3. Instale o Docker e o NVIDIA Container Toolkit na VM, da mesma forma como voce vez na sua maquina local.
 
 #### **5.2.3. Configurar o acesso remoto ao contêiner**
 Agora você deve configurar seu contêiner local para ser capaz de rodar na VM remota com GPU quando necessário. Isso pode ser feito usando **Docker Contexts** e **SSH**:
@@ -335,8 +313,6 @@ Caso prefira usar SSH direto, você pode copiar seu contêiner local para a VM c
    docker load < minha_ia_gpu.tar
    docker run --rm --gpus all minha_ia_gpu
    ```
-
----
 
 #### **5.2.4. Alternar entre local e remoto**
 Sempre que quiser alternar entre o ambiente local e o remoto:
