@@ -15,7 +15,16 @@ Antes de começar, certifique-se de que você tem:
    - Driver da GPU atualizado.
 4. **Azure CLI** instalado e configurado.
 
----
+### **1.1 Arquitetura**
+```sh
+azure-service-models/
+├── docker-compose.yml
+├── Dockerfile
+├── app/
+│   ├── test_gpu_pytorch.py.py
+│   ├── test_gpu_tensorflow.py.py
+│   └── requirements.txt
+```
 
 ## **2. Criando o Dockerfile com CUDA**
 Vamos criar um Dockerfile que instala o **CUDA** e configura um ambiente básico para testar a GPU.
