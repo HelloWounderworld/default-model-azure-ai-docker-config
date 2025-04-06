@@ -150,6 +150,28 @@ Para Linux Ubuntu, siga os passos abaixo:
    ```
 
 ### **4. Instalar e configurar o Azure CLI**
+Sim, a configuração do **Azure CLI** seria extremamente útil, especialmente para gerenciar recursos da Azure, como a criação de máquinas virtuais com GPUs e a integração com Kubernetes (se você optar por usar o AKS). O Azure CLI facilita a automação e o controle direto dos serviços da Azure a partir da linha de comando.
+
+#### **Por que usar o Azure CLI no processo?**
+1. **Gerenciar Máquinas Virtuais (VMs)**  
+   - Criação, monitoramento e conexão com as VMs com GPU disponíveis.
+   - Por exemplo, criar uma VM com GPU:
+     ```sh
+     az vm create --resource-group MeuGrupo --name MinhaVM --image UbuntuLTS --size Standard_NC6 --generate-ssh-keys
+     ```
+
+2. **Gerenciar Clusters AKS**  
+   - Configurar e gerenciar clusters Kubernetes para rodar seus contêineres remotamente com GPU.
+   - Por exemplo, criar um cluster AKS:
+     ```sh
+     az aks create --resource-group MeuGrupo --name MeuCluster --node-count 2 --node-vm-size Standard_NC6s_v3 --generate-ssh-keys
+     ```
+
+3. **Automatizar Configurações**  
+   - Automatizar tarefas como escalabilidade e reinicialização de máquinas, sem depender do portal gráfico da Azure.
+
+4. **Integrar com Docker**  
+   - Você pode usar o Azure CLI para configurar o acesso remoto entre seu contêiner Docker local e os recursos da Azure, criando contextos ou transferindo imagens para a VM remota.
 
 #### **Instalar o Azure CLI**:
 1. No Ubuntu/Debian:
@@ -173,7 +195,11 @@ Para Linux Ubuntu, siga os passos abaixo:
    az vm list-sizes --location eastus --query "[?contains(name, 'NC')]" --output table
    ```
 
----
+#### **Referências e mais informações**
+- [Documentação do Azure CLI](https://learn.microsoft.com/pt-br/cli/azure/)
+- [Guia de configuração do CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
+
+Se precisar de suporte para instalar ou usar o Azure CLI, ou para combinar os comandos com Docker, é só pedir! 🚀
 
 ### **Resumo dos Passos Completos**
 Ao seguir essas etapas, você terá:
