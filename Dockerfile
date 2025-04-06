@@ -9,8 +9,6 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONUTF8=1
 ENV PIP_NO_CACHE_DIR=off
 
-COPY sources.list /etc/apt/sources.list
-
 RUN apt-get update \
     && apt-get upgrade -y \
     && apt-get install --assume-yes --no-install-recommends \
@@ -70,7 +68,3 @@ RUN apt-get update \
     && nvcc --version \
     && pip install -U -r requirements.txt \
     && pip freeze > requirements.txt
-
-EXPOSE 8000
-
-CMD nvidia-smi

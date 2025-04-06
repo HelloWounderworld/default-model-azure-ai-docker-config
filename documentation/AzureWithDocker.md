@@ -27,21 +27,70 @@ Crie um arquivo chamado **`Dockerfile`**:
 FROM nvidia/cuda:12.2.2-devel-ubuntu22.04
 
 # Instala pacotes necessários
-RUN apt-get update && apt-get install -y \
-    python3 python3-pip \
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && apt-get install --assume-yes --no-install-recommends \
+    ca-certificates \
+    build-essential \
+    git \
+    nano \
+    curl \
+    wget \
+    gnupg2 \
+    lsb-release \
+    libssl-dev \
+    zlib1g-dev \
+    libbz2-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    llvm \
+    libncurses5-dev \
+    libncursesw5-dev \
+    xz-utils \
+    tk-dev \
+    libxml2-dev \
+    libxmlsec1-dev \
+    libffi-dev \
+    liblzma-dev \
+    python3-openssl \
+    libopenblas-base \
+    libopenblas-dev \
+    logrotate \
+    less \
+    sudo \
+    apt-utils \
+    dpkg \
     && rm -rf /var/lib/apt/lists/*
 
-# Define o ambiente correto para CUDA
-ENV PATH="/usr/local/cuda/bin:${PATH}"
-ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
+WORKDIR /opt
+
+ENV PYENV_ROOT /opt/.pyenv
+ENV PATH ${PYENV_ROOT}/bin:${PYENV_ROOT}/shims:${PATH}
+ARG PYTHON_VERSION=3.10.15
+RUN git clone https://github.com/pyenv/pyenv.git ${PYENV_ROOT} \
+    && echo 'export PATH="${PYENV_ROOT}/bin:${PYENV_ROOT}/shims:${PATH}"' >> ~/.bashrc \
+    && echo 'eval "$(pyenv init -)"' >> ~/.bashrc \
+    && eval "$(pyenv init -)" \
+    && source ~/.bashrc \
+    && CFLAGS=-I/usr/include LDFLAGS=-L/usr/lib pyenv install -v ${PYTHON_VERSION} \
+    && pyenv global ${PYTHON_VERSION} \
+    && pyenv rehash \
+    && python --version \
+    && pip install --upgrade pip
 
 # Instala pacotes Python para testar GPU
-RUN pip3 install --upgrade pip && \
-    pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+WORKDIR /azure-service-models
+
+COPY . .
+
+RUN apt-get update \
+    && apt-get -y upgrade \
+    && nvcc --version \
+    && pip install -U -r requirements.txt \
+    && pip freeze > requirements.txt
 
 # Copia e executa um script de teste da GPU
-COPY test_gpu.py /test_gpu.py
-CMD ["python3", "/test_gpu.py"]
+CMD ["python", "test_gpu_pytorch.py"]
 ```
 
 ---
@@ -66,7 +115,8 @@ else:
 ## **4. Construindo e rodando o container**
 Agora, vamos construir e executar o container **Docker**.
 
-### **4.1. Construindo a imagem Docker**
+### **4.1. Utilizando Somente Imagem (Dockerfile)**
+#### **4.1.1. Construindo a imagem Docker**
 No terminal, execute:
 
 ```sh
@@ -75,7 +125,7 @@ docker build -t my_cuda_container .
 
 Isso criará uma imagem chamada **my_cuda_container** com CUDA instalado.
 
-### **4.2. Executando o container com suporte à GPU**
+#### **4.1.2. Executando o container com suporte à GPU**
 Se estiver em uma máquina com suporte à GPU e **NVIDIA Container Toolkit** instalado, execute:
 
 ```sh
@@ -90,6 +140,7 @@ Nome da GPU: NVIDIA A100-SXM4-40GB
 Quantidade de GPUs disponíveis: 1
 Memória total da GPU: 40.00 GB
 ```
+### **4.2. Utilizando docker-compose.yml**
 
 ---
 
