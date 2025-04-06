@@ -17,35 +17,35 @@ Antes de começar, certifique-se de que você tem:
 
 ---
 
-# Azure Container Instance and Azure Kubernet Service
+## **2. Azure Container Instance and Azure Kubernet Service**
 Claro! Vamos abordar de forma clara e prática os dois serviços citados: **Azure Kubernetes Service (AKS)** e **Azure Container Instances (ACI)**. Ambos são soluções para rodar contêineres no Azure, mas com **níveis diferentes de complexidade, controle e escalabilidade**.
 
 ---
 
-## 🔹 **2. Azure Container Instances (ACI)**
+### 🔹 **2.1. Azure Container Instances (ACI)**
 
-### ✅ Ideal para:
+#### ✅ Ideal para:
 - Executar **contêineres simples e rápidos**, sem se preocupar com infraestrutura.
 - Casos de uso **temporários** ou de **baixa escala**.
 - Testes, tarefas automáticas ou pequenas APIs.
 
-### 🧱 Requisitos básicos:
+#### 🧱 Requisitos básicos:
 - Ter uma **imagem Docker** pronta (no Docker Hub, Azure Container Registry ou outro repositório).
 - Ter o **Azure CLI** instalado.
 
-### 🚀 Como começar:
+#### 🚀 Como começar:
 
-#### 1. Login no Azure:
+##### 1. Login no Azure:
 ```bash
 az login
 ```
 
-#### 2. Criar um grupo de recursos:
+##### 2. Criar um grupo de recursos:
 ```bash
 az group create --name MeuGrupo --location eastus
 ```
 
-#### 3. Criar uma instância de contêiner rodando uma imagem Docker:
+##### 3. Criar uma instância de contêiner rodando uma imagem Docker:
 ```bash
 az container create \
   --resource-group MeuGrupo \
@@ -58,27 +58,27 @@ az container create \
   --location eastus
 ```
 
-#### 4. Verificar se está funcionando:
+##### 4. Verificar se está funcionando:
 ```bash
 az container show --resource-group MeuGrupo --name meucontainer --query ipAddress.fqdn
 ```
 
 Abra o endereço no navegador e veja o NGINX rodando.
 
-### ⚠️ Limitações:
+#### ⚠️ Limitações:
 - **Não suporta GPU diretamente**.
 - Não é adequado para cargas de trabalho complexas ou escaláveis.
 
 ---
 
-## 🔷 **3. Azure Kubernetes Service (AKS)**
+### 🔷 **2.2. Azure Kubernetes Service (AKS)**
 
-### ✅ Ideal para:
+#### ✅ Ideal para:
 - Aplicações complexas em **escala**.
 - Uso de múltiplos contêineres, **balanceamento de carga**, **autoescalonamento**, **GPU**, etc.
 - Ambientes de produção com **resiliência e alta disponibilidade**.
 
-### 🧱 Requisitos básicos:
+#### 🧱 Requisitos básicos:
 - Conhecimento básico de **Kubernetes** (pods, deployments, services).
 - Azure CLI e a extensão AKS:
 ```bash
@@ -88,14 +88,14 @@ az extension add --name aks
 
 ---
 
-### 🚀 Como começar com AKS:
+#### 🚀 Como começar com AKS:
 
-#### 1. Criar grupo de recursos:
+##### 1. Criar grupo de recursos:
 ```bash
 az group create --name MeuGrupoAKS --location eastus
 ```
 
-#### 2. Criar um cluster AKS:
+##### 2. Criar um cluster AKS:
 ```bash
 az aks create \
   --resource-group MeuGrupoAKS \
@@ -105,18 +105,18 @@ az aks create \
   --generate-ssh-keys
 ```
 
-#### 3. Conectar ao cluster:
+##### 3. Conectar ao cluster:
 ```bash
 az aks get-credentials --resource-group MeuGrupoAKS --name MeuClusterAKS
 ```
 
-#### 4. Criar um app simples (por exemplo, NGINX):
+##### 4. Criar um app simples (por exemplo, NGINX):
 ```bash
 kubectl create deployment nginx --image=nginx
 kubectl expose deployment nginx --port=80 --type=LoadBalancer
 ```
 
-#### 5. Obter o IP público:
+##### 5. Obter o IP público:
 ```bash
 kubectl get services
 ```
@@ -125,7 +125,7 @@ Abra o IP no navegador.
 
 ---
 
-### ⚙️ GPU no AKS:
+#### ⚙️ GPU no AKS:
 Se desejar rodar modelos com GPU (como no Ollama), crie **nós com GPU**:
 ```bash
 az aks nodepool add \
@@ -142,7 +142,7 @@ Você pode então agendar workloads para esse pool com `nodeSelector`.
 
 ---
 
-### 🆚 Comparativo Rápido
+#### 🆚 Comparativo Rápido
 
 | Recurso | ACI | AKS |
 |--------|-----|-----|
@@ -155,7 +155,7 @@ Você pode então agendar workloads para esse pool com `nodeSelector`.
 
 ---
 
-### 🔚 Conclusão
+#### 🔚 Conclusão
 
 - **Comece com o ACI** se quiser testar rapidamente seu contêiner.
 - **Use o AKS** se estiver construindo uma **infraestrutura robusta para produção**, especialmente com **GPU** para LLMs.
@@ -168,7 +168,7 @@ Se quiser, posso te fornecer:
 
 É só pedir! 🚀
 
-## **4. Criando o Dockerfile com CUDA**
+## **3. Criando o Dockerfile com CUDA**
 Vamos criar um Dockerfile que instala o **CUDA** e configura um ambiente básico para testar a GPU.
 
 Crie um arquivo chamado **`Dockerfile`**:
@@ -246,7 +246,7 @@ CMD ["python", "test_gpu_pytorch.py"]
 
 ---
 
-## **5. Criando o script Python para testar a GPU**
+## **4. Criando o script Python para testar a GPU**
 Crie um arquivo chamado **`test_gpu.py`** no mesmo diretório do Dockerfile:
 
 ```python
@@ -263,11 +263,11 @@ else:
 
 ---
 
-## **6. Construindo e rodando o container**
+## **5. Construindo e rodando o container**
 Agora, vamos construir e executar o container **Docker**.
 
-### **6.1. Utilizando Somente Imagem (Dockerfile)**
-#### **6.1.1. Construindo a imagem Docker**
+### **5.1. Utilizando Somente Imagem (Dockerfile)**
+#### **5.1.1. Construindo a imagem Docker**
 No terminal, execute:
 
 ```sh
@@ -276,7 +276,7 @@ docker build -t my_cuda_container .
 
 Isso criará uma imagem chamada **my_cuda_container** com CUDA instalado.
 
-#### **6.1.2. Executando o container com suporte à GPU**
+#### **5.1.2. Executando o container com suporte à GPU**
 Se estiver em uma máquina com suporte à GPU e **NVIDIA Container Toolkit** instalado, execute:
 
 ```sh
@@ -291,15 +291,15 @@ Nome da GPU: NVIDIA A100-SXM4-40GB
 Quantidade de GPUs disponíveis: 1
 Memória total da GPU: 40.00 GB
 ```
-### **6.2. Utilizando docker-compose.yml**
+### **5.2. Utilizando docker-compose.yml**
 
 ---
 
-## **7. Subindo o container no Azure**
+## **6. Subindo o container no Azure**
 
-### **7.1. Se quiser rodar esse container em uma \*\*VM do Azure com GPU\*\*, siga os passos abaixo.**
+### **6.1. Se quiser rodar esse container em uma \*\*VM do Azure com GPU\*\*, siga os passos abaixo.**
 
-#### **7.1.1. Criando uma VM com GPU no Azure**
+#### **6.1.1. Criando uma VM com GPU no Azure**
 1. Acesse o [Portal do Azure](https://portal.azure.com/).
 2. Vá para **Máquinas Virtuais** ➝ **Criar VM**.
 3. Escolha um **tamanho compatível com GPU** (ex: `Standard_NC6`, `Standard_ND6s`, etc.).
@@ -308,14 +308,14 @@ Memória total da GPU: 40.00 GB
 6. Habilite a opção **"Suporte a GPU"**.
 7. Finalize a configuração e inicie a VM.
 
-#### **7.1.2. Conectando-se à VM**
+#### **6.1.2. Conectando-se à VM**
 Após a VM estar criada, conecte-se via SSH:
 
 ```sh
 ssh azure-user@<IP_DA_VM>
 ```
 
-#### **7.1.3. Instalando Docker e NVIDIA Container Toolkit**
+#### **6.1.3. Instalando Docker e NVIDIA Container Toolkit**
 Na VM do Azure, execute:
 
 ```sh
@@ -339,7 +339,7 @@ sudo apt update && sudo apt install -y nvidia-container-toolkit
 sudo systemctl restart docker
 ```
 
-#### **7.1.4. Transferindo e rodando o container na Azure VM**
+#### **6.1.4. Transferindo e rodando o container na Azure VM**
 Agora, copie os arquivos para a VM:
 
 ```sh
@@ -358,14 +358,14 @@ Se tudo estiver correto, você verá a saída confirmando que a GPU está dispon
 
 ---
 
-### **7.2. Se quiser rodar esse container \*\*na sua maquina local e acessar a GPU da Azure, remotamente, somente, quando necessario\*\*, siga os passos abaixo.**
+### **6.2. Se quiser rodar esse container \*\*na sua maquina local e acessar a GPU da Azure, remotamente, somente, quando necessario\*\*, siga os passos abaixo.**
 Ótima pergunta! O **Azure Kubernetes Service (AKS)** é um serviço gerenciado que permite implantar, gerenciar e escalar aplicativos em contêineres usando **Kubernetes** na nuvem da Azure. Ele facilita o acesso remoto à GPU da Azure ao permitir que você execute seus contêineres em um cluster Kubernetes hospedado na nuvem.
 
 Entendido! Você quer criar um contêiner Docker **localmente** e, apenas quando necessário, utilizar a GPU da Azure para executar processos que demandem recursos mais intensivos. Isso envolve configurar o acesso remoto à GPU da Azure enquanto mantém o desenvolvimento e execução básica local. Aqui está uma abordagem detalhada:
 
 ---
 
-#### **7.2.1. Configurar o contêiner Docker localmente**
+#### **6.2.1. Configurar o contêiner Docker localmente**
 Antes de tudo, você deve garantir que seu contêiner esteja pronto para rodar localmente. Isso inclui criar um `Dockerfile` que encapsule todas as dependências da sua aplicação. Exemplo:
 
 ```dockerfile
@@ -382,7 +382,7 @@ Este contêiner está preparado para rodar em máquinas com ou sem GPU. Localmen
 
 ---
 
-#### **7.2.2. Criar uma máquina virtual com GPU na Azure**
+#### **6.2.2. Criar uma máquina virtual com GPU na Azure**
 Quando precisar de recursos de GPU, você pode conectar seu contêiner à GPU da Azure. Para isso, configure uma máquina virtual com GPU na Azure. Exemplo:
 
 1. No **Azure Portal**, vá para **Máquinas Virtuais** e crie uma VM com suporte a GPU (séries NC ou ND).
@@ -399,7 +399,7 @@ Quando precisar de recursos de GPU, você pode conectar seu contêiner à GPU da
 
 ---
 
-#### **7.2.3. Configurar o acesso remoto ao contêiner**
+#### **6.2.3. Configurar o acesso remoto ao contêiner**
 Agora você deve configurar seu contêiner local para ser capaz de rodar na VM remota com GPU quando necessário. Isso pode ser feito usando **Docker Contexts** e **SSH**:
 
 ##### **Configurar Docker Contexts**
@@ -439,7 +439,7 @@ Caso prefira usar SSH direto, você pode copiar seu contêiner local para a VM c
 
 ---
 
-#### **7.2.4. Alternar entre local e remoto**
+#### **6.2.4. Alternar entre local e remoto**
 Sempre que quiser alternar entre o ambiente local e o remoto:
 - Use o contexto local do Docker para tarefas que não dependem de GPU.
 - Altere para o contexto remoto quando precisar executar processos que demandem GPU na Azure.
