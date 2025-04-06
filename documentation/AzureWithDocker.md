@@ -20,6 +20,8 @@ Antes de começar, certifique-se de que você tem:
 ## **2. Criando o Dockerfile com CUDA**
 Vamos criar um Dockerfile que instala o **CUDA** e configura um ambiente básico para testar a GPU.
 
+Primeiro, de tudo, antes de realizarmos as configuracoes com a Azure, vamos criar uma container, na sua propria maquina, e verificar se o script python esta rodando muito bem. Iremos utilizar as duas bibliotecas Pytorch e Tensorflow. Porem, na pratica, uma delas seria o suficiente.
+
 Crie um arquivo chamado **`Dockerfile`**:
 
 ```dockerfile
@@ -98,6 +100,7 @@ CMD ["python", "test_gpu_pytorch.py"]
 ## **3. Criando o script Python para testar a GPU**
 Crie um arquivo chamado **`test_gpu.py`** no mesmo diretório do Dockerfile:
 
+- test_gpu_pytorch.py
 ```python
 import torch
 
@@ -108,6 +111,23 @@ if torch.cuda.is_available():
     print(f"Memória total da GPU: {torch.cuda.get_device_properties(0).total_memory / 1e9:.2f} GB")
 else:
     print("❌ GPU não detectada!")
+```
+
+- test_gpu_tensorflow.py
+```python
+import tensorflow as tf
+from tensorflow.python.client import device_lib
+
+# Verifica se há GPUs disponíveis
+gpus = tf.config.list_physical_devices('GPU')
+
+if gpus:
+    print(f"GPUs disponíveis: {gpus}")
+else:
+    print("Nenhuma GPU disponível.")
+
+# Lista todos os dispositivos disponíveis
+print(device_lib.list_local_devices())
 ```
 
 ---
