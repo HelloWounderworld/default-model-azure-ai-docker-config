@@ -24,7 +24,11 @@ Aqui está uma explicação detalhada e passo a passo para atender a todos os pr
    - No portal da Azure, vá até **Máquinas Virtuais** e clique em "Criar Máquina Virtual".
    - Escolha uma região com suporte a GPUs (por exemplo, **East US**, **West Europe**).
    - Escolha um tamanho de VM com GPU, como as séries **NC** (NVIDIA Tesla K80/V100) ou **ND** (para aprendizado profundo).
-   - Complete a configuração da VM e gere as chaves SSH.
+   - Complete a configuração da VM e gere as chaves SSH. (Durante o processo ele ira perguntar se voce deseja baixar o arquivo .pem. Isso sera importante para que voce consiga acessar a VM pela sua maquina local)
+   - Agora, caso voce utilize o windows, acesse, pela WSL, em alguma distribuicao Linux, ou se voce estiver dentro de um container Docker, tambem, serve e dentro do arquivo .ssh, envie o arquivo .pem dentro dela e renomeie pelo "id_rsa.pem"
+   - Em seguida, libere a tal permissao pelo comando "chmod 400 ~/.ssh/id_rsa.pem"
+   - Assim, em seguida, utilize o comando "ssh -i ~/.ssh/id_rsa.pem <username>@<endereco ip>"
+   - Visto que voce conseguiu entrar na VM, pela sua maquina local, indica que o processo esta finalizado.
 
 3. **Alternativa: Configurar o Azure Machine Learning**:
    - No portal da Azure, procure por **Azure Machine Learning** e crie um workspace.
