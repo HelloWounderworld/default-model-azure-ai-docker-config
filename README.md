@@ -3,7 +3,7 @@
 ## **Objetivo**
 Eu tenho um objetivo de criar uma IA. Porem, o unico problema para criar essa IA seria a utilizacao da GPU. O meu notebook gamer nao tem uma GPU tao potente. Logo, imagino que a Azure tenha. Ou seja, eu acho que so iria querer utilizar a GPU da Azure mesmo, pois essa mesma IA que eu criar, nao queria que ela ficasse dependente somente dos recursos da Azure, mas, sim, que ela tenha mais versatilidade em ser implementada em diversos ambientes.
 
-Você está no caminho certo, pensando em como utilizar a infraestrutura da Azure para suprir a necessidade de GPUs mais potentes, mas sem limitar sua IA apenas ao ambiente da Azure. Aqui está um plano estratégico que pode ajudar:
+Aqui está um plano estratégico:
 
 ### 1. **Utilizar a GPU da Azure para Treinamento**
    - A Azure oferece máquinas virtuais com GPUs avançadas, como as da NVIDIA, ótimas para treinamento de modelos complexos de IA.
@@ -25,7 +25,7 @@ Você está no caminho certo, pensando em como utilizar a infraestrutura da Azur
 Se você quiser saber mais sobre como configurar GPUs específicas na Azure ou criar contêineres robustos no Docker, posso te orientar passo a passo. O que você acha? 🚀
 
 ## **Implementacao**
-Ótimo! Aqui estão as instruções e referências para cada etapa mencionada, para que você possa começar a explorar e implementar sua IA:
+Aqui estão as instruções e referências para cada etapa mencionada, para que você possa começar a explorar e implementar sua IA:
 
 ---
 
