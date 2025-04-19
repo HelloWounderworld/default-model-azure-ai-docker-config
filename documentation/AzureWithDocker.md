@@ -26,7 +26,7 @@ azure-service-models/
 │   └── requirements.txt
 ```
 
-## **2. Criando o Dockerfile com CUDA**
+## [**2. Criando o Dockerfile com CUDA**](https://hub.docker.com/r/nvidia/cuda)
 Vamos criar um Dockerfile que instala o **CUDA** e configura um ambiente básico para testar a GPU.
 
 Primeiro, de tudo, antes de realizarmos as configuracoes com a Azure, vamos criar uma container, na sua propria maquina, e verificar se o script python esta rodando muito bem. Iremos utilizar as duas bibliotecas Pytorch e Tensorflow. Porem, na pratica, uma delas seria o suficiente.
