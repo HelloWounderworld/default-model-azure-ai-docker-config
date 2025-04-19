@@ -1,103 +1,62 @@
-# **Requisitos que precisam serem satisfeitas antes de comercarmos a mexer com docker Container e Azure**
+# Requisitos a serem atendidos antes de trabalhar com contêineres Docker e Azure
 
-## **Pré-requisitos**
-Antes de começar, certifique-se de que você tem:
+## Pré-requisitos
 
-1. **Conta no Azure** com acesso a um **VM com GPU** ou **Azure Machine Learning (AML)**.
-2. **Instalado o Docker** na sua máquina local.
-3. **Docker com suporte a NVIDIA**:
-   - **NVIDIA Container Toolkit** instalado ([Guia de instalação](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)).
-   - Driver da GPU atualizado.
-4. **Azure CLI** instalado e configurado.
+Antes de começar, verifique o seguinte:
 
-Aqui está uma explicação detalhada e passo a passo para atender a todos os pré-requisitos listados.
+- Você possui uma conta Azure e acesso a uma VM com GPU.
+- O Docker está instalado na Máquina Virtual.
+- Docker compatível com NVIDIA:
+  - O NVIDIA Container Toolkit está instalado (Guia de instalação).
+  - O driver da GPU está atualizado.
 
----
+Aqui estão as etapas detalhadas para atender a todos os pré-requisitos listados.
 
-### **1. Conta no Azure com acesso a uma VM com GPU ou Azure Machine Learning (AML)**
+## 1. Criar uma conta Azure com acesso a uma VM com GPU
 
-1. **Criar uma conta na Azure**:
-   - Acesse [portal.azure.com](https://portal.azure.com).
-   - Clique em "Criar Conta" (caso ainda não tenha uma conta). Complete o processo de cadastro.
+### Criar uma conta Azure:
+- Acesse [portal.azure.com](https://portal.azure.com).
+- Clique em "Criar conta" (se ainda não tiver uma conta). Complete o processo de registro.
 
-2. **Configurar uma máquina virtual com GPU**:
-   - No portal da Azure, vá até **Máquinas Virtuais** e clique em "Criar Máquina Virtual".
-   - Escolha uma região com suporte a GPUs (por exemplo, **East US**, **West Europe**).
-   - Escolha um tamanho de VM com GPU, como as séries **NC** (NVIDIA Tesla K80/V100) ou **ND** (para aprendizado profundo).
-   - Complete a configuração da VM e gere as chaves SSH. (Durante o processo ele ira perguntar se voce deseja baixar o arquivo .pem. Isso sera importante para que voce consiga acessar a VM pela sua maquina local)
-   - Agora, caso voce utilize o windows, acesse, pela WSL, em alguma distribuicao Linux, ou se voce estiver dentro de um container Docker, tambem, serve e dentro do arquivo .ssh, envie o arquivo .pem dentro dela e renomeie pelo "id_rsa.pem"
-   - Em seguida, libere a tal permissao pelo comando "chmod 400 ~/.ssh/id_rsa.pem"
-   - Assim, em seguida, utilize o comando "ssh -i ~/.ssh/id_rsa.pem <username>@<endereco ip>"
-   - Visto que voce conseguiu entrar na VM, pela sua maquina local, indica que o processo esta finalizado.
+### Configurar uma máquina virtual com GPU:
+- No portal Azure, vá para "Máquinas Virtuais" e clique em "Criar máquina virtual".
+- Selecione uma região compatível com GPU (ex: East US, West Europe).
+- Defina o tipo de segurança como Padrão.
+- Escolha um tamanho de VM com GPU, como a série NC (NVIDIA Tesla K80/V100) ou ND (para aprendizado profundo).
+- Complete a configuração da VM e gere uma chave SSH. (Durante o processo, você será solicitado a baixar um arquivo .pem, que é importante para acessar a VM a partir da máquina local.)
+- Se estiver usando Windows, use uma distribuição Linux no WSL ou dentro do contêiner Docker. Envie o arquivo .pem para a pasta .ssh e renomeie-o para "id_rsa.pem".
+- Em seguida, use o comando `chmod 400 ~/.ssh/id_rsa.pem` para definir as permissões.
+- Depois, use o comando `ssh -i ~/.ssh/id_rsa.pem <username>@<ip_address>`.
+- Se você conseguir acessar a VM a partir da máquina local, o processo está concluído.
 
-3. **Alternativa: Configurar o Azure Machine Learning**:
-   - No portal da Azure, procure por **Azure Machine Learning** e crie um workspace.
-   - Configure um cluster de computação com GPUs para treinar modelos, se necessário.
+## 2. Instalar o Docker na Máquina Virtual
 
-### **2. Instalar o Docker na máquina local**
+### Instalação do Docker em Ubuntu/Debian:
+- [Instale o Docker Engine.](https://docs.docker.com/engine/install/ubuntu/)
 
-#### **Instalar Docker no Ubuntu/Debian**:
-1. Atualize os pacotes:
-   ```sh
-   sudo apt-get update
-   ```
-2. Instale pacotes necessários:
-   ```sh
-   sudo apt-get install -y ca-certificates curl gnupg
-   ```
-3. Adicione o repositório Docker:
-   ```sh
-   sudo mkdir -p /etc/apt/keyrings
-   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-   echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-   ```
-4. Instale o Docker:
-   ```sh
-   sudo apt-get update
-   sudo apt-get install -y docker-ce docker-ce-cli containerd.io
-   ```
-5. Verifique a instalação:
-   ```sh
-   docker --version
-   ```
+## 3. Configurar o Docker com suporte a NVIDIA
 
-#### **Instalar Docker no Windows/Mac**:
-1. Baixe o instalador em [docker.com](https://www.docker.com/products/docker-desktop/).
-2. Siga as instruções para completar a instalação.
-3. Verifique se o Docker Desktop está ativo.
+### Antes de começar a instalação, verifique o que já está instalado:
+- O NVIDIA Container Toolkit adiciona suporte ao runtime NVIDIA no Docker. Para verificar se está configurado, execute o seguinte comando:
+  ```bash
+  docker info | grep "Runtimes"
+  ```
+- Se o runtime NVIDIA estiver instalado, você verá:
+  ```
+  Runtimes: nvidia runc
+  ```
 
-#### **Referencias**
+- Se "nvidia" não estiver na lista, o toolkit pode não estar instalado.
 
-- [Instalacao do Docker Engine](https://docs.docker.com/engine/)
+### Outra forma de verificar:
+- Execute o comando:
+  ```bash
+  nvidia-smi
+  ```
+- Isso confirmará se o driver está instalado na Máquina Virtual, o que é necessário para o NVIDIA Container Toolkit.
 
-### **3. Configurar Docker com Suporte a NVIDIA**
-
-#### **Antes de comecar com as instalacoes, verifique o que ja esta satisfeito**
-O NVIDIA Container Toolkit adiciona o suporte ao **NVIDIA runtime** no Docker. Para verificar se ele está configurado, execute o comando abaixo:
-
-```sh
-docker info | grep "Runtimes"
+### Se o driver estiver instalado, você verá uma saída semelhante a:
 ```
-
-Se o NVIDIA runtime estiver instalado, você verá algo como:
-
-```
-Runtimes: nvidia runc
-```
-
-Caso não veja "nvidia" listado, o toolkit provavelmente ainda não está instalado.
-
-A outra laternativa seria voce realizar o seguinte
-
-```sh
-nvidia-smi
-```
-
-Assim, verificar se na sua maquina local, tem o driver instalado, pois isso seria necessario para o NVIDIA Container Toolkit.
-
-Se, de fato, o driver estiver instalado localmente, na sua maquina, ela ira exibir algo do seguinte tipo abaixo:
-
-```sh
 +-----------------------------------------------------------------------------------------+
 | NVIDIA-SMI 560.41                 Driver Version: 561.03         CUDA Version: 12.6     |
 |-----------------------------------------+------------------------+----------------------+
@@ -119,97 +78,92 @@ Se, de fato, o driver estiver instalado localmente, na sua maquina, ela ira exib
 +-----------------------------------------------------------------------------------------+
 ```
 
-#### **Atualizar o driver da GPU NVIDIA**
-1. Identifique sua GPU:
-   ```sh
+### Para instalar o driver NVIDIA via linha de comando em Ubuntu ([Guia de instalação](https://documentation.ubuntu.com/server/how-to/graphics/install-nvidia-drivers/index.html)):
+1. Primeiro, instale o "ubuntu-driver":
+   ```bash
+   sudo apt update
+   sudo apt upgrade -y
+   sudo apt-get install ubuntu-drivers-common
+   sudo apt-get install alsa-utils
+   ```
+
+2. Em seguida, visualize a lista de drivers:
+   ```bash
+   sudo ubuntu-drivers list
+   ```
+   ou
+   ```bash
+   sudo ubuntu-drivers devices
+   ```
+
+3. Se você ver uma saída semelhante a esta, a instalação foi bem-sucedida:
+   ```
+   == /sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/VMBUS:00/47505500-0001-0000-3130-444531454238/pci0001:00/0001:00:00.0 ==
+   modalias : pci:v000010DEd00001EB8sv000010DEsd000012A2bc03sc02i00
+   vendor   : NVIDIA Corporation
+   model    : TU104GL [Tesla T4]
+   driver   : nvidia-driver-470 - distro non-free
+   driver   : nvidia-driver-535 - distro non-free recommended
+   driver   : nvidia-driver-535-server - distro non-free
+   driver   : nvidia-driver-570-server - distro non-free
+   driver   : nvidia-driver-470-server - distro non-free
+   driver   : xserver-xorg-video-nouveau - distro free builtin
+   ```
+
+4. Instale o driver (recomenda-se o driver marcado como recomendado):
+   ```bash
+   sudo apt install -y nvidia-driver-XXX
+   ```
+
+5. Após a instalação, reinicie:
+   ```bash
+   sudo reboot
+   ```
+
+6. Verifique se o driver foi instalado corretamente:
+   ```bash
    nvidia-smi
    ```
-2. Baixe o driver apropriado no site oficial da [NVIDIA](https://www.nvidia.com/Download/index.aspx).
-3. Siga as instruções de instalação para o seu sistema operacional.
 
-#### **Instalar o NVIDIA Container Toolkit  ([Guia de instalação](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html))**
-Para Linux Ubuntu, siga os passos abaixo:
+### Atualização do driver NVIDIA:
+- Identifique a GPU:
+  ```bash
+  nvidia-smi
+  ```
 
+- Baixe o driver apropriado do site oficial da NVIDIA.
+- Siga as instruções de instalação para o seu sistema operacional.
+
+### Instalar o NVIDIA Container Toolkit ([Guia de instalação](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)):
+Para Ubuntu Linux, siga estas etapas:
 1. Adicione o repositório NVIDIA:
-   ```sh
+   ```bash
    curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
-    && curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
-        sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
-        sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+   && curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
+   sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+   sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
    ```
+
 2. Instale o NVIDIA Container Toolkit:
-   ```sh
+   ```bash
    sudo apt-get update
    sudo apt-get install -y nvidia-container-toolkit
    sudo nvidia-ctk runtime configure --runtime=docker
    sudo systemctl restart docker
    ```
-3. Verifique a instalação executando um contêiner de teste com GPU:
-   ```sh
+
+3. Execute um contêiner de teste que utiliza GPU para confirmar a instalação:
+   ```bash
    docker info | grep "Runtimes"
    ```
-   - A confirmacao da sua instalacao estara como o seguinte abaixo:
-   ```sh
+   A confirmação da instalação deve ser:
+   ```
    Runtimes: io.containerd.runc.v2 nvidia runc
    ```
 
-### **4. Instalar e configurar o Azure CLI**
-Sim, a configuração do **Azure CLI** seria extremamente útil, especialmente para gerenciar recursos da Azure, como a criação de máquinas virtuais com GPUs e a integração com Kubernetes (se você optar por usar o AKS). O Azure CLI facilita a automação e o controle direto dos serviços da Azure a partir da linha de comando.
+## Resumo das etapas concluídas
 
-#### **Por que usar o Azure CLI no processo?**
-1. **Gerenciar Máquinas Virtuais (VMs)**  
-   - Criação, monitoramento e conexão com as VMs com GPU disponíveis.
-   - Por exemplo, criar uma VM com GPU:
-     ```sh
-     az vm create --resource-group MeuGrupo --name MinhaVM --image UbuntuLTS --size Standard_NC6 --generate-ssh-keys
-     ```
-
-2. **Gerenciar Clusters AKS**  
-   - Configurar e gerenciar clusters Kubernetes para rodar seus contêineres remotamente com GPU.
-   - Por exemplo, criar um cluster AKS:
-     ```sh
-     az aks create --resource-group MeuGrupo --name MeuCluster --node-count 2 --node-vm-size Standard_NC6s_v3 --generate-ssh-keys
-     ```
-
-3. **Automatizar Configurações**  
-   - Automatizar tarefas como escalabilidade e reinicialização de máquinas, sem depender do portal gráfico da Azure.
-
-4. **Integrar com Docker**  
-   - Você pode usar o Azure CLI para configurar o acesso remoto entre seu contêiner Docker local e os recursos da Azure, criando contextos ou transferindo imagens para a VM remota.
-
-#### **Instalar o Azure CLI**:
-1. No Ubuntu/Debian:
-   ```sh
-   curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-   ```
-2. No Windows/Mac:
-   - Baixe e instale o CLI a partir da [página oficial](https://aka.ms/installazurecli).
-
-#### **Configurar o Azure CLI**:
-1. Faça login com sua conta Azure:
-   ```sh
-   az login
-   ```
-2. Configure o grupo de recursos:
-   ```sh
-   az group create --name MeuGrupo --location eastus
-   ```
-3. Verifique as máquinas disponíveis com GPU:
-   ```sh
-   az vm list-sizes --location eastus --query "[?contains(name, 'NC')]" --output table
-   ```
-
-#### **Referências e mais informações**
-- [Documentação do Azure CLI](https://learn.microsoft.com/pt-br/cli/azure/)
-- [Guia de configuração do CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
-
-Se precisar de suporte para instalar ou usar o Azure CLI, ou para combinar os comandos com Docker, é só pedir! 🚀
-
-### **Resumo dos Passos Completos**
-Ao seguir essas etapas, você terá:
-1. Uma conta no Azure com acesso à GPU.
-2. Docker instalado na sua máquina local.
-3. Suporte a NVIDIA no Docker, pronto para usar GPUs.
-4. Azure CLI instalado e configurado para gerenciar remotamente os recursos da Azure.
-
-Se você encontrar algum problema em uma dessas etapas, estou aqui para ajudar! 🚀
+Ao seguir estas etapas, você pode:
+- Ter uma conta Azure com acesso a GPU.
+- Ter o Docker instalado na sua máquina local.
+- Ter suporte da NVIDIA configurado para uso com Docker.
