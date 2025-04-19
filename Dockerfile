@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.6.2-devel-ubuntu22.04
+FROM nvidia/cuda:12.8.1-devel-ubuntu24.04
 
 SHELL ["/bin/bash", "-c"]
 
@@ -47,7 +47,7 @@ WORKDIR /opt
 
 ENV PYENV_ROOT /opt/.pyenv
 ENV PATH ${PYENV_ROOT}/bin:${PYENV_ROOT}/shims:${PATH}
-ARG PYTHON_VERSION=3.10.15
+ARG PYTHON_VERSION=3.13.3
 RUN git clone https://github.com/pyenv/pyenv.git ${PYENV_ROOT} \
     && echo 'export PATH="${PYENV_ROOT}/bin:${PYENV_ROOT}/shims:${PATH}"' >> ~/.bashrc \
     && echo 'eval "$(pyenv init -)"' >> ~/.bashrc \
@@ -61,10 +61,14 @@ RUN git clone https://github.com/pyenv/pyenv.git ${PYENV_ROOT} \
 
 WORKDIR /azure-service-models
 
-COPY . .
+COPY ./app .
 
 RUN apt-get update \
     && apt-get -y upgrade \
+    && echo 'export PATH="/usr/local/cuda/bin${PATH:+:${PATH}}"' \
+    && echo 'export LD_LIBRARY_PATH="/usr/local/cuda/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"' \
+    && source ~/.bashrc \
     && nvcc --version \
+    && python -m pip install --upgrade pip \
     && pip install -U -r requirements.txt \
     && pip freeze > requirements.txt
