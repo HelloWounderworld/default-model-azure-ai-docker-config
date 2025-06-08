@@ -9,7 +9,7 @@ Para utilizar o **Docker** junto com o serviço de **Azure AI** e construir um *
 Antes de começar, certifique-se de que você tem:
 
 1. **Conta no Azure** com acesso a um **VM com GPU** ou **Azure Machine Learning (AML)**.
-2. **Instalado o Docker** na sua máquina local.
+2. **Instalado o Docker** na sua máquina virtual.
 3. **Docker com suporte a NVIDIA**:
    - **NVIDIA Container Toolkit** instalado ([Guia de instalação](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)).
    - Driver da GPU atualizado.
