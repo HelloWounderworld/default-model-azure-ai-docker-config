@@ -78,7 +78,7 @@ Aqui estão as etapas detalhadas para atender a todos os pré-requisitos listado
 +-----------------------------------------------------------------------------------------+
 ```
 
-### Para instalar o driver NVIDIA via linha de comando em Ubuntu ([Guia de instalação](https://documentation.ubuntu.com/server/how-to/graphics/install-nvidia-drivers/index.html)):
+### Para instalar o driver NVIDIA via linha de comando em Ubuntu, caso não for exibido nada em nvidia-smi ([Guia de instalação](https://documentation.ubuntu.com/server/how-to/graphics/install-nvidia-drivers/index.html)):
 1. Primeiro, instale o "ubuntu-driver":
    ```bash
    sudo apt update
